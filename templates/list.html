@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>List Data</title>
+</head>
+<body>
+    <a href="{{ url_for('add_data') }}">Add New Data</a>
+
+<a href="{{ url_for('display_graph') }}">Graph</a>
+    <h1>Count Data</h1>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Counter Data</th>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+        {% for row in count_data %}
+        <tr>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+            <td>{{ row[3] }}</td>
+            <td>
+                <form action="{{ url_for('edit_count_data', id=row[0]) }}" method="get">
+                    <input type="submit" value="Edit">
+                </form>
+            </td>
+            <td>
+                <form action="{{ url_for('delete_count_data', id=row[0]) }}" method="post">
+                    <input type="submit" value="Delete">
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h1>Picture Counter Data</h1>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name of Picture</th>
+            <th>Count Data ID</th>
+            <th>Refer Mongo Entry</th>
+            <th>Additional Info</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+        {% for row in picture_data %}
+        <tr>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+            <td>{{ row[3] }}</td>
+            <td>{{ row[4] }}</td>
+            <td>
+                <form action="{{ url_for('edit_picture_data', id=row[0]) }}" method="get">
+                    <input type="submit" value="Edit">
+                </form>
+            </td>
+            <td>
+                <form action="{{ url_for('delete_picture_data', id=row[0]) }}" method="post">
+                    <input type="submit" value="Delete">
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+        <h1> </h1>
+ <a href="{{ url_for('add_data') }}">Add New Data</a>
+</body>
+</html>
+

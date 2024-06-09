@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Data</title>
+    <script>
+        function updateNameOfPicture(event) {
+            var input = event.srcElement;
+            var fileName = input.files[0].name;
+            document.getElementById('name_of_picture').value = fileName;
+        }
+    </script>
+</head>
+<body>
+    <h1>Add Data</h1>
+    <form action="{{ url_for('add_data') }}" method="post">
+        <label for="counter_data">Counter Data:</label>
+        <input type="number" id="counter_data" name="counter_data"><br><br>
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date"><br><br>
+        <label for="description">Description:</label>
+        <input type="text" id="description" name="description"><br><br>
+        <label for="name_of_picture">Name of Picture:</label>
+        <input type="text" id="name_of_picture" name="name_of_picture" readonly>
+        <input type="file" onchange="updateNameOfPicture(event)"><br><br>
+        <label for="refer_mongo_entry">Refer Mongo Entry:</label>
+        <input type="text" id="refer_mongo_entry" name="refer_mongo_entry"><br><br>
+        <label for="additional_info">Additional Info:</label>
+        <input type="text" id="additional_info" name="additional_info"><br><br>
+        <input type="submit" value="Add Data">
+    </form>
+</body>
+</html>
