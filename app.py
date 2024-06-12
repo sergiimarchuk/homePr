@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 app = Flask(__name__)
 
-# Connect to the PostgreSQL database
+# Connect to the //PostgreSQL database
 def get_db_connection():
     conn = psycopg2.connect(
         host="localhost",
@@ -243,8 +243,8 @@ def display_graph():
         conn = get_db_connection()
         cur = conn.cursor()
 
-        # Query the database for data from table_count_data
-        cur.execute("SELECT counter_data, date FROM my_schema.table_count_data")
+        # Query the database for data from table_count_data and sort it by date
+        cur.execute("SELECT counter_data, date FROM my_schema.table_count_data ORDER BY date")
         data = cur.fetchall()
 
         # Separate the data into lists for counter_data and dates
@@ -271,9 +271,9 @@ def display_graph():
         # Annotate the graph with current, previous, and calculated values
         for i, (value, prev_value, diff, init_diff) in enumerate(zip(counter_data, previous_counter_data, diff_div_10, diff_initial)):
             if prev_value is not None:
-                annotation_text = f'Prev: {prev_value}\nCurr: {value}\nDiff/10: {diff}\nToUsed: {init_diff}'
+                annotation_text = f'P.{prev_value}\nC.{value}\nD.{diff}\nU.{init_diff}'
             else:
-                annotation_text = f'Curr: {value}\nInit Diff: {init_diff}'
+                annotation_text = f'C.{value}\nD.{init_diff}'
             plt.annotate(annotation_text, (date_strings[i], value), textcoords="offset points", xytext=(0,10), ha='center')
 
         plt.title('Counter Data Over Time')

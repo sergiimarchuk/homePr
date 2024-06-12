@@ -15,18 +15,9 @@ services:
     networks:
       - postgres_network
 
-  backup:
-    image: postgres:13
-    container_name: backup_postgres_container 
-    volumes:
-      - postgres_data:/opt/backup
-    command: >
-      bash -c "cp -r /var/lib/postgresql/data/* /opt/backup"
-
 volumes:
   postgres_data:
 
 networks:
   postgres_network:
     driver: bridge
-
