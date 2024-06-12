@@ -18,6 +18,8 @@ postgres=#
 
 #### run these to create tables and schema in container if you have no any backup etc, otherwise skip it
 
+```
+
 ```bash
 CREATE SCHEMA my_schema;
 
@@ -36,8 +38,11 @@ CREATE TABLE my_schema.table_picture_counter_data (
     additional_info TEXT
 );
 
+```
+
 #### run these commands if it neccessary, just depends on and up to you 
 
+```bash
 postgres=# \dt
 Did not find any relations.
 postgres=# \dn
