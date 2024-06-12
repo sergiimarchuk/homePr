@@ -1,5 +1,9 @@
 version: '3.8'
 
+networks:
+  postgres_network:
+    driver: bridge
+
 services:
   db:
     image: postgres:13
@@ -12,21 +16,31 @@ services:
       - "5435:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./postgres_data:/host_postgres_data  # Mounting to a directory on your host
     networks:
       - postgres_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backup:
     image: postgres:13
-    container_name: backup_postgres_container 
+    container_name: backup_postgres_container
+    depends_on:
+      db:
+        condition: service_healthy
     volumes:
-      - postgres_data:/opt/backup
+      - postgres_data:/var/lib/postgresql/data
+      - backup_volume:/backups
+      - ./backup_data:/host_backup_data  # Mounting to a directory on your host
     command: >
-      bash -c "cp -r /var/lib/postgresql/data/* /opt/backup"
+      bash -c "pg_dump -U postgres -d postgres -Fc > /backups/backup_$$(date +%Y%m%d%H%M%S).dump"
+    networks:
+      - postgres_network
 
 volumes:
   postgres_data:
-
-networks:
-  postgres_network:
-    driver: bridge
+  backup_volume:
 
