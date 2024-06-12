@@ -3,6 +3,8 @@
 
 #### run docker-composer
 ##### example: docker-compose -f /path/to/your/docker-compose.yml up -d 
+##### take a look at config docker-compose.yml find some info like port do db and login password etc 
+##### after docker containers up and running be sure everything are OK lie docker ps -a ...
 ```bash
 docker-compose up -d
 ```
