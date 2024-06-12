@@ -5,9 +5,10 @@
 ##### example: docker-compose -f /path/to/your/docker-compose.yml up -d 
 ```bash
 docker-compose up -d
-
+```
 
 #### run 
+
 ```bash
 sergii@smu-22:~$ psql -h localhost -p 5435 -U postgres -d postgres
 Password for user postgres: 
@@ -15,6 +16,7 @@ psql (14.11 (Ubuntu 14.11-0ubuntu0.22.04.1), server 13.15 (Debian 13.15-1.pgdg12
 Type "help" for help.
 
 postgres=# 
+
 ```
 
 #### run these to create tables and schema in container if you have no any backup etc, otherwise skip it
