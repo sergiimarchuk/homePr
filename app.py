@@ -5,12 +5,33 @@ import matplotlib.pyplot as plt
 
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# MongoDB client setup
+client = MongoClient('mongo', 27017)
+db = client['mydatabase']
+pictures_collection = db['pictures']
+
+# Route to serve pictures
+@app.route('/serve_picture/<int:id>', methods=['GET'])
+def serve_picture(id):
+    try:
+        picture_data = pictures_collection.find_one({'_id': id})
+        if picture_data:
+            return send_file(io.BytesIO(picture_data['picture_data']), mimetype='image/jpeg')
+        else:
+            return 'Picture not found', 404
+    except Exception as e:
+        return str(e), 500
+
 
 # Connect to the //PostgreSQL database
 def get_db_connection():
     conn = psycopg2.connect(
-        host="localhost",
-        port="5435",
+        host="db",
+        port="5432",
         database="postgres",
         user="postgres",
         password="123456"
@@ -43,22 +64,77 @@ def list_data():
         return str(e), 500
 
 # Route to add count data
-@app.route('/add_count_data', methods=['POST'])
-def add_count_data():
-    counter_data = request.form['counter_data']
-    date = request.form['date']
-    description = request.form['description']
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute("INSERT INTO my_schema.table_count_data (counter_data, date, description) VALUES (%s, %s, %s)",
-                    (counter_data, date, description))
-        conn.commit()
-        cur.close()
-        conn.close()
-        return redirect(url_for('list_data'))
-    except Exception as e:
-        return str(e), 500
+#@app.route('/add_count_data', methods=['POST'])
+#def add_count_data():
+#    counter_data = request.form['counter_data']
+#    date = request.form['date']
+#    description = request.form['description']
+#    try:
+#        conn = get_db_connection()
+#        cur = conn.cursor()
+#        cur.execute("INSERT INTO my_schema.table_count_data (counter_data, date, description) VALUES (%s, %s, %s)",
+#                    (counter_data, date, description))
+#        conn.commit()
+#        cur.close()
+#        conn.close()
+#        return redirect(url_for('list_data'))
+#    except Exception as e:
+#        return str(e), 500
+
+# Route to add data
+@app.route('/add_data', methods=['GET', 'POST'])
+def add_data():
+    if request.method == 'POST':
+        # Handle form data
+        counter_data = request.form['counter_data']
+        date_input = request.form['date']
+        description = request.form['description']
+        name_of_picture = request.form['name_of_picture']
+        refer_mongo_entry = request.form['refer_mongo_entry']
+        additional_info = request.form['additional_info']
+        
+        # Handle the empty date input by setting it to today's date
+        if not date_input:
+            date_input = datetime.date.today().strftime('%Y-%m-%d')
+        
+        # Handle file upload
+        if 'picture_file' in request.files:
+            picture_file = request.files['picture_file']
+            
+            # Save the file to a temporary directory or directly process it
+            # For demonstration, let's save it to a temporary directory
+            if picture_file.filename != '':
+                filename = secure_filename(picture_file.filename)
+                temp_filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                picture_file.save(temp_filepath)
+                
+                # Insert picture into MongoDB
+                with open(temp_filepath, 'rb') as f:
+                    picture_data = f.read()
+                    pictures_collection.insert_one({
+                        'name_of_picture': name_of_picture,
+                        'date': date_input,
+                        'refer_mongo_entry': refer_mongo_entry,
+                        'additional_info': additional_info,
+                        'picture_data': picture_data
+                    })
+                
+                # Remove the temporary file after inserting into MongoDB
+                os.remove(temp_filepath)
+                
+                flash('Picture uploaded successfully!', 'success')
+            else:
+                flash('No selected file', 'error')
+        
+        try:
+            # Continue with inserting data into PostgreSQL or other operations as needed
+            # Connect to PostgreSQL, insert data, etc.
+            return redirect(url_for('list_data'))
+        except Exception as e:
+            return str(e), 500
+    else:
+        return render_template('add_data.html')
+
 
 # Route to add picture data
 @app.route('/add_picture_data', methods=['POST'])

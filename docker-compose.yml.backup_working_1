@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: postgres
+    ports:
+      - "5436:5432"  # Changed from 5435 to 5436 to avoid conflict
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres_data:/host_postgres_data
+    networks:
+      - postgres_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  flask_app:
+    build:
+      context: .
+    container_name: flask_app_container
+    command: flask run --host=0.0.0.0
+    environment:
+      FLASK_APP: app.py
+      FLASK_ENV: development
+      DATABASE_URL: postgres://postgres:123456@db:5432/postgres
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    networks:
+      - postgres_network
+
+networks:
+  postgres_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mongo_data:

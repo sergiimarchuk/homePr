@@ -1,12 +1,19 @@
+<!-- list.html -->
 <!DOCTYPE html>
 <html>
 <head>
     <title>List Data</title>
+    <style>
+        .picture {
+            max-width: 200px;
+            max-height: 200px;
+        }
+    </style>
 </head>
 <body>
     <a href="{{ url_for('add_data') }}">Add New Data</a>
+    <a href="{{ url_for('display_graph') }}">Graph</a>
 
-<a href="{{ url_for('display_graph') }}">Graph</a>
     <h1>Count Data</h1>
     <table border="1">
         <tr>
@@ -45,6 +52,7 @@
             <th>Count Data ID</th>
             <th>Refer Mongo Entry</th>
             <th>Additional Info</th>
+            <th>Picture</th>
             <th>Edit</th>
             <th>Delete</th>
         </tr>
@@ -55,6 +63,9 @@
             <td>{{ row[2] }}</td>
             <td>{{ row[3] }}</td>
             <td>{{ row[4] }}</td>
+            <td>
+                <img class="picture" src="{{ url_for('serve_picture', id=row[0]) }}" alt="{{ row[1] }}">
+            </td>
             <td>
                 <form action="{{ url_for('edit_picture_data', id=row[0]) }}" method="get">
                     <input type="submit" value="Edit">
@@ -68,8 +79,7 @@
         </tr>
         {% endfor %}
     </table>
-        <h1> </h1>
- <a href="{{ url_for('add_data') }}">Add New Data     </a>
+
 </body>
 </html>
 

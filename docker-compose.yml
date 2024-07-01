@@ -1,9 +1,5 @@
 version: '3.8'
 
-networks:
-  postgres_network:
-    driver: bridge
-
 services:
   db:
     image: postgres:13
@@ -13,10 +9,9 @@ services:
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: postgres
     ports:
-      - "5435:5432"
+      - "5436:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./postgres_data:/host_postgres_data  # Mounting to a directory on your host
     networks:
       - postgres_network
     healthcheck:
@@ -25,22 +20,44 @@ services:
       timeout: 5s
       retries: 5
 
-  backup:
-    image: postgres:13
-    container_name: backup_postgres_container
-    depends_on:
-      db:
-        condition: service_healthy
+  mongo:
+    image: mongo:latest
+    container_name: mongo_container
+    ports:
+      - "27017:27017"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - backup_volume:/backups
-      - ./backup_data:/host_backup_data  # Mounting to a directory on your host
-    command: >
-      bash -c "pg_dump -U postgres -d postgres -Fc > /backups/backup_$$(date +%Y%m%d%H%M%S).dump"
+      - mongo_data:/data/db
+    networks:
+      - postgres_network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/admin --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  flask_app:
+    build:
+      context: .
+    container_name: flask_app_container
+    command: flask run --host=0.0.0.0
+    environment:
+      FLASK_APP: app.py
+      FLASK_ENV: development
+      DATABASE_URL: postgres://postgres:123456@db:5432/postgres
+      MONGO_URI: mongodb://mongo:27017/mydatabase
+    depends_on:
+      - db
+      - mongo
+    ports:
+      - "5000:5000"
     networks:
       - postgres_network
 
+networks:
+  postgres_network:
+    driver: bridge
+
 volumes:
   postgres_data:
-  backup_volume:
+  mongo_data:
 
